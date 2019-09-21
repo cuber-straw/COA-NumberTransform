@@ -99,8 +99,9 @@ public class NumberTransform {
 
 
 
-    public String floatToBinary(){
-        return "";
+    public static String float_To_Binary(float f){
+        int temp = Float.floatToIntBits(f);
+        return intToBinary(temp);
     }
 
     public static void main(String[] args) {
