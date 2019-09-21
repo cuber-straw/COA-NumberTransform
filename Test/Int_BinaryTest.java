@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class IntToBinaryTest {
+class Int_BinaryTest {
 
     @Test
     void intToBinaryTest1() {

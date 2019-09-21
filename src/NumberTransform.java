@@ -78,9 +78,27 @@ public class NumberTransform {
         return sb.toString();
     }
 
-    public float binaryFloat_to_Float(){
-        return 0;
+    public static float binaryFloat_to_Float(String code){
+        char sign = code.charAt(0);
+        String exponentStr = code.substring(1, 9);
+        String significantStr = code.substring(9, 32);
+        int exponent = -127;
+        for (int i=0; i<8; i++){
+            if (exponentStr.charAt(i) == '1'){
+                exponent += Math.pow(2, 7-i);
+            }
+        }
+        float significant = 1.0f;
+        for (int i=0; i<23; i++){
+            if (significantStr.charAt(i) == '1'){
+                significant += (float)Math.pow(2, -1-i);
+            }
+        }
+        return (float)(Math.pow(-1, Integer.parseInt(String.valueOf(sign)))*significant*Math.pow(2, exponent));
     }
+
+
+
     public String floatToBinary(){
         return "";
     }
