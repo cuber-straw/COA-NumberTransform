@@ -38,17 +38,17 @@ public class NumberTransform {
             return Integer.valueOf(s, 2);
         }
         else {
-            s = qu_fan_jia_yi(s);
-            return Integer.valueOf(s, 2);
+            s = qu_fan(s);
+            return -Integer.valueOf(s, 2)-1;
         }
     }
 
     /**
      *
      * @param s 二进制补码
-     * @return String 取反加一后的二进制补码
+     * @return String 取反加的二进制编码，不加一，先转换成整数后再减一
      */
-    private static String qu_fan_jia_yi(String s) {
+    private static String qu_fan(String s) {
         StringBuilder sb = new StringBuilder();
         for (int i=0; i<32; i++){
             if (s.charAt(i)=='0'){
@@ -58,22 +58,23 @@ public class NumberTransform {
                 sb.append('0');
             }
         }
-        int jing_wei = 0;
-        for (int i=31; i>=0; i--){
-            int t = jing_wei + Integer.parseInt(String.valueOf(sb.charAt(i)));
-            if (t == 2){
-                sb.setCharAt(i, '0');
-                jing_wei = 1;
-            }
-            else if (t == 1){
-                sb.setCharAt(i, '1');
-                jing_wei = 0;
-            }
-            else {
-                sb.setCharAt(i, '0');
-                jing_wei = 0;
-            }
-        }
+//        // 取反加一的操作，但是对于MIN_VALUE过不了用例
+//        int jing_wei = 1;
+//        for (int i=31; i>=0; i--){
+//            int t = jing_wei + Integer.parseInt(String.valueOf(sb.charAt(i)));
+//            if (t == 2){
+//                sb.setCharAt(i, '0');
+//                jing_wei = 1;
+//            }
+//            else if (t == 1){
+//                sb.setCharAt(i, '1');
+//                jing_wei = 0;
+//            }
+//            else {
+//                sb.setCharAt(i, '0');
+//                jing_wei = 0;
+//            }
+//        }
         return sb.toString();
     }
 
