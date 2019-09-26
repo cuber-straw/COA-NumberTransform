@@ -1,11 +1,14 @@
+import java.util.HashMap;
+import java.util.Map;
+
 public class NumberTransform {
 
     /**
-     * 将十进制整数转换成二进制补码
+     * 将十进制整数(DEC.Integer)转换成二进制补码(BIN.Integer)
      * @param rawInt 十进制整数
      * @return String 二进制补码
      */
-    public static String intToBinary(int rawInt){
+    public static String decInt_to_binInt(int rawInt){
         StringBuilder sb = new StringBuilder();
         if (rawInt>=0){
 
@@ -29,11 +32,11 @@ public class NumberTransform {
 
 
     /**
-     * 将二进制补码转换成十进制整数
+     * 将二进制补码(BIN.Integer)转换成十进制整数(DEC.Integer)
      * @param s 二进制补码
      * @return int 十进制整数
      */
-    public static int binaryToInt(String s){
+    public static int binInt_to_decInt(String s){
         if (s.charAt(0) == '0'){
             return Integer.valueOf(s, 2);
         }
@@ -58,27 +61,18 @@ public class NumberTransform {
                 sb.append('0');
             }
         }
-//        // 取反加一的操作，但是对于MIN_VALUE过不了用例
-//        int jing_wei = 1;
-//        for (int i=31; i>=0; i--){
-//            int t = jing_wei + Integer.parseInt(String.valueOf(sb.charAt(i)));
-//            if (t == 2){
-//                sb.setCharAt(i, '0');
-//                jing_wei = 1;
-//            }
-//            else if (t == 1){
-//                sb.setCharAt(i, '1');
-//                jing_wei = 0;
-//            }
-//            else {
-//                sb.setCharAt(i, '0');
-//                jing_wei = 0;
-//            }
-//        }
         return sb.toString();
     }
 
-    public static float binaryFloat_to_Float(String code){
+
+    /**
+     * 将BIN.Float转换为DEC.Float
+     * @param code (String)待转换的浮点数的32位二进制码
+     * @return float 转换后的十进制浮点数
+     */
+    public static float binFloat_to_decFloat(String code){
+
+        // 先按一般情况算着
         char sign = code.charAt(0);
         String exponentStr = code.substring(1, 9);
         String significantStr = code.substring(9, 32);
@@ -94,16 +88,113 @@ public class NumberTransform {
                 significant += (float)Math.pow(2, -1-i);
             }
         }
+
+        // 考虑一些特殊情况
+        // 1. 当输入串全是为0时，不能按normal情况讨论
+        if (code.equals("00000000000000000000000000000000")){
+            return 0.0f;
+        } else if (code.equals("10000000000000000000000000000000")){
+            return 0.0f;
+        } else if (code.equals("01111111100000000000000000000000")){
+            return Float.POSITIVE_INFINITY;
+        } else if (code.equals("11111111100000000000000000000000")){
+            return Float.NEGATIVE_INFINITY;
+        } else if (exponentStr.equals("11111111")){
+            return Float.NaN;
+        } else if (exponentStr.equals("00000000")){
+            exponent = -126;
+            significant -= 1.0f;
+        }
+
+
         return (float)(Math.pow(-1, Integer.parseInt(String.valueOf(sign)))*significant*Math.pow(2, exponent));
     }
 
 
-
-    public static String float_To_Binary(float f){
+    /**
+     * 将DEC.Float转换为BIN.Float
+     * @param f 待转换的浮点数
+     * @return (String)转换后的32位二进制码
+     */
+    public static String decFloat_to_binFloat(float f){
+        // f上溢出时，对其赋值为最大值
+        if (f>Float.MAX_VALUE){
+            f = Float.MAX_VALUE;
+        }
         int temp = Float.floatToIntBits(f);
-        return intToBinary(temp);
+        return decInt_to_binInt(temp);
     }
 
-    public static void main(String[] args) {
+    /**
+     * 将DEC.Int转换为BCD
+     * @param num
+     * @return
+     */
+    public static String decInt_to_BCD(int num){
+        Map<Integer, String> map = new HashMap<>();
+        map.put(0, "0000");
+        map.put(1, "0001");
+        map.put(2, "0010");
+        map.put(3, "0011");
+        map.put(4, "0100");
+        map.put(5, "0101");
+        map.put(6, "0110");
+        map.put(7, "0111");
+        map.put(8, "1000");
+        map.put(9, "1001");
+
+        boolean positive = true;
+        if (num<0){
+            positive = false;
+            num = -num;
+        }
+        int[] a = new int[7];
+        for (int i=0; i<7; i++){
+            a[i] = num/(int)Math.pow(10, 6-i);
+            num -= a[i]*Math.pow(10, 6-i);
+        }
+        StringBuilder sb = new StringBuilder();
+        if (positive){
+            sb.append("1100");
+        }
+        else {
+            sb.append("1101");
+        }
+        for (int i=0; i<7; i++){
+            sb.append(map.get(a[i]));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 将BCD转换为BIN.Int
+     * @param bcd
+     * @return
+     */
+    public static int BCD_to_decInt(String bcd){
+        Map<String, Integer> map = new HashMap<>();
+        map.put("0000", 0);
+        map.put("0001", 1);
+        map.put("0010", 2);
+        map.put("0011", 3);
+        map.put("0100", 4);
+        map.put("0101", 5);
+        map.put("0110", 6);
+        map.put("0111", 7);
+        map.put("1000", 8);
+        map.put("1001", 9);
+
+        int[] a = new int[7];
+        int num = 0;
+        for (int i=0; i<7; i++){
+            a[i] = map.get(bcd.substring(4*i+4, 4*i+8));
+            num += a[i]*Math.pow(10, 6-i);
+        }
+        if (bcd.substring(0, 4).equals("1100")){
+            return num;
+        }
+        else {
+            return -num;
+        }
     }
 }
