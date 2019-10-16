@@ -5,10 +5,11 @@ public class NumberTransform {
 
     /**
      * 将十进制整数(DEC.Integer)转换成二进制补码(BIN.Integer)
-     * @param rawInt 十进制整数
+     * @param s 十进制整数的字符串表示
      * @return String 二进制补码
      */
-    public static String decInt_to_binInt(int rawInt){
+    public static String decInt_to_binInt(String s){
+        int rawInt = Integer.parseInt(s);
         StringBuilder sb = new StringBuilder();
         if (rawInt>=0){
 
@@ -36,13 +37,13 @@ public class NumberTransform {
      * @param s 二进制补码
      * @return int 十进制整数
      */
-    public static int binInt_to_decInt(String s){
+    public static String binInt_to_decInt(String s){
         if (s.charAt(0) == '0'){
-            return Integer.valueOf(s, 2);
+            return Integer.valueOf(s, 2).toString();
         }
         else {
             s = qu_fan(s);
-            return -Integer.valueOf(s, 2)-1;
+            return Integer.toString(-Integer.valueOf(s, 2)-1);
         }
     }
 
@@ -70,7 +71,7 @@ public class NumberTransform {
      * @param code (String)待转换的浮点数的32位二进制码
      * @return float 转换后的十进制浮点数
      */
-    public static float binFloat_to_decFloat(String code){
+    public String binaryDec_To_floatDec(String code){
 
         // 先按一般情况算着
         char sign = code.charAt(0);
@@ -92,45 +93,46 @@ public class NumberTransform {
         // 考虑一些特殊情况
         // 1. 当输入串全是为0时，不能按normal情况讨论
         if (code.equals("00000000000000000000000000000000")){
-            return 0.0f;
+            return Float.toString(0.0f);
         } else if (code.equals("10000000000000000000000000000000")){
-            return 0.0f;
+            return Float.toString(0.0f);
         } else if (code.equals("01111111100000000000000000000000")){
-            return Float.POSITIVE_INFINITY;
+            return Float.toString(Float.POSITIVE_INFINITY);
         } else if (code.equals("11111111100000000000000000000000")){
-            return Float.NEGATIVE_INFINITY;
+            return Float.toString(Float.NEGATIVE_INFINITY);
         } else if (exponentStr.equals("11111111")){
-            return Float.NaN;
+            return Float.toString(Float.NaN);
         } else if (exponentStr.equals("00000000")){
             exponent = -126;
             significant -= 1.0f;
         }
 
-
-        return (float)(Math.pow(-1, Integer.parseInt(String.valueOf(sign)))*significant*Math.pow(2, exponent));
+        return Float.toString((float)(Math.pow(-1, Integer.parseInt(String.valueOf(sign)))*significant*Math.pow(2, exponent)));
     }
 
 
     /**
      * 将DEC.Float转换为BIN.Float
-     * @param f 待转换的浮点数
+     * @param s 待转换的浮点数
      * @return (String)转换后的32位二进制码
      */
-    public static String decFloat_to_binFloat(float f){
+    public static String floatToBinary(String s){
+        Float f = Float.parseFloat(s);
         // f上溢出时，对其赋值为最大值
         if (f>Float.MAX_VALUE){
             f = Float.MAX_VALUE;
         }
         int temp = Float.floatToIntBits(f);
-        return decInt_to_binInt(temp);
+        return decInt_to_binInt(Integer.toString(temp));
     }
 
     /**
      * 将DEC.Int转换为BCD
-     * @param num
+     * @param s
      * @return
      */
-    public static String decInt_to_BCD(int num){
+    public static String decInt_to_BCD(String s){
+        int num = Integer.parseInt(s);
         Map<Integer, String> map = new HashMap<>();
         map.put(0, "0000");
         map.put(1, "0001");
@@ -171,7 +173,7 @@ public class NumberTransform {
      * @param bcd
      * @return
      */
-    public static int BCD_to_decInt(String bcd){
+    public static String BCD_to_decInt(String bcd){
         Map<String, Integer> map = new HashMap<>();
         map.put("0000", 0);
         map.put("0001", 1);
@@ -191,10 +193,10 @@ public class NumberTransform {
             num += a[i]*Math.pow(10, 6-i);
         }
         if (bcd.substring(0, 4).equals("1100")){
-            return num;
+            return Integer.toString(num);
         }
         else {
-            return -num;
+            return Integer.toString(-num);
         }
     }
 }
